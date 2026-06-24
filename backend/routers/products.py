@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models, schemas
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 def create_product(payload: schemas.ProductCreate, db: Session = Depends(get_db)):
     if db.query(models.Product).filter(models.Product.sku == payload.sku).first():
         raise HTTPException(status_code=400, detail="SKU already exists")
-    product = models.Product(**payload.dict())
+    product = models.Product(**payload.model_dump())
     db.add(product)
     db.commit()
     db.refresh(product)
@@ -34,7 +34,7 @@ def update_product(product_id: int, payload: schemas.ProductUpdate, db: Session 
     if payload.sku and payload.sku != p.sku:
         if db.query(models.Product).filter(models.Product.sku == payload.sku).first():
             raise HTTPException(400, "SKU already exists")
-    for k, v in payload.dict(exclude_none=True).items():
+    for k, v in payload.model_dump(exclude_none=True).items():
         setattr(p, k, v)
     db.commit()
     db.refresh(p)

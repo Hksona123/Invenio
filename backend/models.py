@@ -1,7 +1,13 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def _now():
+    """Return timezone-aware UTC datetime (replaces deprecated datetime.utcnow)."""
+    return datetime.now(timezone.utc)
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -10,8 +16,9 @@ class Product(Base):
     sku         = Column(String, unique=True, nullable=False, index=True)
     price       = Column(Float, nullable=False)
     quantity    = Column(Integer, default=0)
-    created_at  = Column(DateTime, default=datetime.utcnow)
+    created_at  = Column(DateTime(timezone=True), default=_now)
     order_items = relationship("OrderItem", back_populates="product")
+
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -19,17 +26,19 @@ class Customer(Base):
     full_name  = Column(String, nullable=False)
     email      = Column(String, unique=True, nullable=False, index=True)
     phone      = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=_now)
     orders     = relationship("Order", back_populates="customer")
+
 
 class Order(Base):
     __tablename__ = "orders"
     id           = Column(Integer, primary_key=True, index=True)
     customer_id  = Column(Integer, ForeignKey("customers.id"), nullable=False)
     total_amount = Column(Float, default=0.0)
-    created_at   = Column(DateTime, default=datetime.utcnow)
+    created_at   = Column(DateTime(timezone=True), default=_now)
     customer     = relationship("Customer", back_populates="orders")
     items        = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"

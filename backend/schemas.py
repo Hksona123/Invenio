@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -11,29 +11,36 @@ class ProductBase(BaseModel):
 
     @field_validator("quantity")
     @classmethod
-    def qty_non_negative(cls, v):
+    def qty_non_negative(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Quantity cannot be negative")
         return v
 
     @field_validator("price")
     @classmethod
-    def price_positive(cls, v):
+    def price_positive(cls, v: float) -> float:
         if v <= 0:
             raise ValueError("Price must be positive")
         return v
 
-class ProductCreate(ProductBase): pass
+
+class ProductCreate(ProductBase):
+    pass
+
+
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     sku: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[int] = None
 
+
 class ProductOut(ProductBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
-    class Config: from_attributes = True
+
 
 # ── Customers ─────────────────────────────────
 class CustomerBase(BaseModel):
@@ -41,36 +48,48 @@ class CustomerBase(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
 
-class CustomerCreate(CustomerBase): pass
+
+class CustomerCreate(CustomerBase):
+    pass
+
+
 class CustomerUpdate(BaseModel):
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
 
+
 class CustomerOut(CustomerBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
-    class Config: from_attributes = True
+
 
 # ── Orders ────────────────────────────────────
 class OrderItemCreate(BaseModel):
     product_id: int
     quantity: int
 
+
 class OrderCreate(BaseModel):
     customer_id: int
     items: List[OrderItemCreate]
 
+
 class OrderItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     product_id: int
     quantity: int
     unit_price: float
-    class Config: from_attributes = True
+
 
 class OrderOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     customer_id: int
     total_amount: float
     created_at: datetime
     items: List[OrderItemOut]
-    class Config: from_attributes = True

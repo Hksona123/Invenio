@@ -9,7 +9,7 @@ router = APIRouter(prefix="/customers", tags=["Customers"])
 def create_customer(payload: schemas.CustomerCreate, db: Session = Depends(get_db)):
     if db.query(models.Customer).filter(models.Customer.email == payload.email).first():
         raise HTTPException(400, "Email already registered")
-    c = models.Customer(**payload.dict())
+    c = models.Customer(**payload.model_dump())
     db.add(c)
     db.commit()
     db.refresh(c)
@@ -34,7 +34,7 @@ def update_customer(customer_id: int, payload: schemas.CustomerUpdate, db: Sessi
     if payload.email and payload.email != c.email:
         if db.query(models.Customer).filter(models.Customer.email == payload.email).first():
             raise HTTPException(400, "Email already registered")
-    for k, v in payload.dict(exclude_none=True).items():
+    for k, v in payload.model_dump(exclude_none=True).items():
         setattr(c, k, v)
     db.commit()
     db.refresh(c)
