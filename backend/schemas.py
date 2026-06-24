@@ -93,3 +93,34 @@ class OrderOut(BaseModel):
     total_amount: float
     created_at: datetime
     items: List[OrderItemOut]
+
+
+# ── Dashboard ─────────────────────────────────
+class LowStockProduct(BaseModel):
+    id: int
+    name: str
+    sku: str
+    quantity: int
+    price: float
+
+
+class RecentOrder(BaseModel):
+    id: int
+    customer_name: str
+    total_amount: float
+    item_count: int
+    created_at: datetime
+
+
+class DashboardStats(BaseModel):
+    total_products: int
+    total_customers: int
+    total_orders: int
+    total_revenue: float
+    low_stock_count: int
+    out_of_stock_count: int
+    low_stock_products: List[LowStockProduct]
+    recent_orders: List[RecentOrder]
+    revenue_change_pct: float
+    orders_today: int
+    new_customers_this_week: int

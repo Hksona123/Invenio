@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit2, Trash2, Package } from 'lucide-react';
 import { api } from '../api';
 import { useToast } from '../context/ToastContext';
@@ -17,7 +18,11 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [highlighted, setHighlighted] = useState(null);
   const { addToast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const rowRefs = useRef({});
 
   const load = () => {
     setLoading(true);
@@ -28,6 +33,27 @@ export default function Products() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Handle ?highlight=ID from Dashboard → Restock button
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const hid = params.get('highlight');
+    if (!hid) return;
+    const id = parseInt(hid);
+    setHighlighted(id);
+    // Scroll to the row after products load
+    const tryScroll = () => {
+      const el = rowRefs.current[id];
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => setHighlighted(null), 2500);
+        navigate('/products', { replace: true });
+      } else {
+        setTimeout(tryScroll, 150);
+      }
+    };
+    setTimeout(tryScroll, 200);
+  }, [location.search]);
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -114,8 +140,17 @@ export default function Products() {
               <tbody>
                 {filtered.map(p => {
                   const status = getStockStatus(p.quantity);
+                  const isHighlighted = highlighted === p.id;
                   return (
-                    <tr key={p.id}>
+                    <tr
+                      key={p.id}
+                      ref={el => { rowRefs.current[p.id] = el; }}
+                      style={isHighlighted ? {
+                        background: 'rgba(60,255,208,0.10)',
+                        borderLeft: '2px solid var(--accent-mint)',
+                        transition: 'background 0.4s, border-left-color 0.4s',
+                      } : {}}
+                    >
                       <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
                       <td>
                         <span className="type-mono" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
