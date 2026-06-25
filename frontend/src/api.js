@@ -15,11 +15,11 @@ const req = async (method, path, body) => {
 
 export const api = {
   // Products
-  getProducts:   ()         => req('GET',    '/products'),
-  getProduct:    (id)       => req('GET',    `/products/${id}`),
-  createProduct: (data)     => req('POST',   '/products', data),
-  updateProduct: (id, data) => req('PUT',    `/products/${id}`, data),
-  deleteProduct: (id)       => req('DELETE', `/products/${id}`),
+  getProducts:   (search = '') => req('GET', `/products${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+  getProduct:    (id)          => req('GET',    `/products/${id}`),
+  createProduct: (data)        => req('POST',   '/products', data),
+  updateProduct: (id, data)    => req('PUT',    `/products/${id}`, data),
+  deleteProduct: (id)          => req('DELETE', `/products/${id}`),
 
   // Customers
   getCustomers:   ()         => req('GET',    '/customers'),

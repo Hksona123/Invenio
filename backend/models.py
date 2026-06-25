@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from database import Base
 from datetime import datetime, timezone
 
@@ -12,11 +13,12 @@ def _now():
 class Product(Base):
     __tablename__ = "products"
     id          = Column(Integer, primary_key=True, index=True)
-    name        = Column(String, nullable=False)
-    sku         = Column(String, unique=True, nullable=False, index=True)
+    name        = Column(String(120), nullable=False)
+    sku         = Column(String(40), unique=True, nullable=False, index=True)
     price       = Column(Float, nullable=False)
-    quantity    = Column(Integer, default=0)
+    quantity    = Column(Integer, default=0, nullable=False)
     created_at  = Column(DateTime(timezone=True), default=_now)
+    updated_at  = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     order_items = relationship("OrderItem", back_populates="product")
 
 
