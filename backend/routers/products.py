@@ -51,12 +51,15 @@ def list_products(
         )
     products = q.order_by(Product.created_at.desc()).all()
     items = [to_out(p) for p in products]
+    # Aggregate counts always from full table, not filtered result
+    all_products = db.query(Product).all()
+    all_items = [to_out(p) for p in all_products]
     return ProductListResponse(
         items=items,
-        total=len(items),
-        in_stock=sum(1 for i in items if i.status == StockStatus.IN_STOCK),
-        low_stock=sum(1 for i in items if i.status == StockStatus.LOW_STOCK),
-        out_of_stock=sum(1 for i in items if i.status == StockStatus.OUT_OF_STOCK),
+        total=len(all_items),
+        in_stock=sum(1 for i in all_items if i.status == StockStatus.IN_STOCK),
+        low_stock=sum(1 for i in all_items if i.status == StockStatus.LOW_STOCK),
+        out_of_stock=sum(1 for i in all_items if i.status == StockStatus.OUT_OF_STOCK),
     )
 
 

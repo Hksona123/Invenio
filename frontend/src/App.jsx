@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import Sidebar from './components/Layout/Sidebar';
 import TopBar from './components/Layout/TopBar';
@@ -29,6 +29,7 @@ function AppLayout() {
           <Route path="/products"  element={<Products />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/orders"    element={<Orders />} />
+          <Route path="*"          element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </div>
