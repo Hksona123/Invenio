@@ -12,10 +12,10 @@
 
 | Service | URL |
 |---|---|
-| **Frontend** | https://your-app.vercel.app |
-| **Backend API** | https://your-api.render.com |
-| **API Docs (Swagger)** | https://your-api.render.com/docs |
-| **Docker Hub** | `docker pull yourusername/inventory-backend:latest` |
+| **Frontend** | https://invenio-sable.vercel.app |
+| **Backend API** | https://invenio-backend-s4bv.onrender.com |
+| **API Docs (Swagger)** | https://invenio-backend-s4bv.onrender.com/docs |
+| **Docker Hub** | `docker pull hksona/invenio-backend:latest` |
 
 ---
 
@@ -138,10 +138,7 @@ Fonts:
 
 ```bash
 # Pull pre-built backend image
-docker pull yourusername/invenio-backend:latest
-
-# Pull pre-built frontend image
-docker pull yourusername/invenio-frontend:latest
+docker pull hksona/invenio-backend:latest
 ```
 
 ---
