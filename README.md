@@ -93,8 +93,9 @@ Copy `.env.example` to `.env` and fill in values:
 POSTGRES_USER=inventory_user
 POSTGRES_PASSWORD=supersecret
 POSTGRES_DB=inventory_db
-FRONTEND_URL=http://localhost:3000
-REACT_APP_API_URL=http://localhost:8000
+# Comma-separated list of allowed frontend origins
+FRONTEND_URL=http://localhost:3000,http://localhost:5173
+VITE_API_URL=http://localhost:8000
 ```
 
 ---
