@@ -125,6 +125,33 @@ class CustomerBase(BaseModel):
     email:     EmailStr
     phone:     Optional[str] = None
 
+    @field_validator("full_name")
+    @classmethod
+    def name_not_empty(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Full name cannot be empty")
+        if len(v) > 100:
+            raise ValueError("Name must be 100 characters or fewer")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def email_lowercase(cls, v: str) -> str:
+        return v.strip().lower()
+
+    @field_validator("phone")
+    @classmethod
+    def phone_format(cls, v: Optional[str]) -> Optional[str]:
+        if v is None or v.strip() == "":
+            return None
+        v = v.strip()
+        import re as _re
+        digits = _re.sub(r'\D', '', v)
+        if len(digits) < 7 or len(digits) > 15:
+            raise ValueError("Phone must be between 7 and 15 digits")
+        return v
+
 
 class CustomerCreate(CustomerBase):
     pass
@@ -135,13 +162,51 @@ class CustomerUpdate(BaseModel):
     email:     Optional[EmailStr] = None
     phone:     Optional[str]      = None
 
+    @field_validator("full_name")
+    @classmethod
+    def name_not_empty(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+            if not v:
+                raise ValueError("Full name cannot be empty")
+            if len(v) > 100:
+                raise ValueError("Name must be 100 characters or fewer")
+        return v
 
-class CustomerOut(CustomerBase):
+    @field_validator("email")
+    @classmethod
+    def email_lowercase(cls, v: Optional[str]) -> Optional[str]:
+        return v.strip().lower() if v else v
+
+    @field_validator("phone")
+    @classmethod
+    def phone_format(cls, v: Optional[str]) -> Optional[str]:
+        if v is None or v.strip() == "":
+            return None
+        v = v.strip()
+        import re as _re
+        digits = _re.sub(r'\D', '', v)
+        if len(digits) < 7 or len(digits) > 15:
+            raise ValueError("Phone must be between 7 and 15 digits")
+        return v
+
+
+class CustomerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id:         int
-    created_at: datetime
+    id:          int
+    full_name:   str
+    email:       str
+    phone:       Optional[str]
+    order_count: int
+    created_at:  datetime
 
+
+class CustomerListResponse(BaseModel):
+    items:          List[CustomerOut]
+    total:          int
+    new_this_week:  int
+    new_this_month: int
 
 # ── Orders ────────────────────────────────────
 class OrderItemCreate(BaseModel):

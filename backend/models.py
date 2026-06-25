@@ -25,9 +25,9 @@ class Product(Base):
 class Customer(Base):
     __tablename__ = "customers"
     id         = Column(Integer, primary_key=True, index=True)
-    full_name  = Column(String, nullable=False)
-    email      = Column(String, unique=True, nullable=False, index=True)
-    phone      = Column(String, nullable=True)
+    full_name  = Column(String(100), nullable=False)
+    email      = Column(String(255), unique=True, nullable=False, index=True)
+    phone      = Column(String(30), nullable=True)
     created_at = Column(DateTime(timezone=True), default=_now)
     orders     = relationship("Order", back_populates="customer")
 

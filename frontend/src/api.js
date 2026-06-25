@@ -22,10 +22,11 @@ export const api = {
   deleteProduct: (id)          => req('DELETE', `/products/${id}`),
 
   // Customers
-  getCustomers:   ()         => req('GET',    '/customers'),
-  createCustomer: (data)     => req('POST',   '/customers', data),
-  updateCustomer: (id, data) => req('PUT',    `/customers/${id}`, data),
-  deleteCustomer: (id)       => req('DELETE', `/customers/${id}`),
+  getCustomers:   (search = '') => req('GET', `/customers${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+  getCustomer:    (id)          => req('GET',    `/customers/${id}`),
+  createCustomer: (data)        => req('POST',   '/customers', data),
+  updateCustomer: (id, data)    => req('PUT',    `/customers/${id}`, data),
+  deleteCustomer: (id)          => req('DELETE', `/customers/${id}`),
 
   // Orders
   getOrders:    ()     => req('GET',    '/orders'),
