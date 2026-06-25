@@ -213,28 +213,63 @@ class OrderItemCreate(BaseModel):
     product_id: int
     quantity:   int
 
+    @field_validator("quantity")
+    @classmethod
+    def qty_positive(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("Quantity must be at least 1")
+        if v > 9999:
+            raise ValueError("Quantity per line item cannot exceed 9999")
+        return v
+
 
 class OrderCreate(BaseModel):
     customer_id: int
-    items:       List[OrderItemCreate]
+    items:       List["OrderItemCreate"]
+
+    @field_validator("items")
+    @classmethod
+    def items_not_empty(cls, v: list) -> list:
+        if not v:
+            raise ValueError("Order must contain at least one item")
+        ids = [i.product_id for i in v]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate products in order — combine quantities instead")
+        return v
 
 
 class OrderItemOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    product_id: int
-    quantity:   int
-    unit_price: float
+    id:           int
+    product_id:   int
+    product_name: str
+    product_sku:  str
+    quantity:     int
+    unit_price:   float
+    subtotal:     float
 
 
 class OrderOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id:           int
-    customer_id:  int
-    total_amount: float
-    created_at:   datetime
-    items:        List[OrderItemOut]
+    id:             int
+    customer_id:    int
+    customer_name:  str
+    customer_email: str
+    total_amount:   float
+    item_count:     int
+    line_count:     int
+    created_at:     datetime
+    items:          List[OrderItemOut]
+
+
+class OrderListResponse(BaseModel):
+    items:         List[OrderOut]
+    total:         int
+    total_revenue: float
+    orders_today:  int
+
 
 
 # ── Dashboard ─────────────────────────────────

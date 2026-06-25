@@ -8,7 +8,13 @@ const req = async (method, path, body) => {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+    // Preserve structured errors (e.g. stock failures return detail as object)
+    if (err.detail && typeof err.detail === 'object') {
+      throw new Error(JSON.stringify(err.detail));
+    }
+    throw new Error(
+      typeof err.detail === 'string' ? err.detail : `HTTP ${res.status}`
+    );
   }
   return res.status === 204 ? null : res.json();
 };
@@ -29,10 +35,10 @@ export const api = {
   deleteCustomer: (id)          => req('DELETE', `/customers/${id}`),
 
   // Orders
-  getOrders:    ()     => req('GET',    '/orders'),
-  getOrder:     (id)   => req('GET',    `/orders/${id}`),
-  createOrder:  (data) => req('POST',   '/orders', data),
-  deleteOrder:  (id)   => req('DELETE', `/orders/${id}`),
+  getOrders:   (search = '') => req('GET', `/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+  getOrder:    (id)          => req('GET',    `/orders/${id}`),
+  createOrder: (data)        => req('POST',   '/orders', data),
+  deleteOrder: (id)          => req('DELETE', `/orders/${id}`),
 
   // Dashboard
   getStats: () => req('GET', '/dashboard/stats'),
